@@ -1,0 +1,6 @@
+{
+  "name": "AI Keyboard",
+  "description": "An AI-powered Android keyboard that detects the active app and automatically applies tone rules for rewritten text.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
