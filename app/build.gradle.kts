@@ -11,11 +11,11 @@ plugins {
 }
 
 android {
-  namespace = "com.example"
+  namespace = "com.aikeyboard.app"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.aikeyboard.aiqwry"
+    applicationId = "com.aikeyboard.app"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
@@ -145,4 +145,5 @@ dependencies {
   implementation(libs.hilt.android)
   "ksp"(libs.hilt.compiler)
   implementation(libs.androidx.hilt.navigation.compose)
+  testImplementation(libs.mockk)
 }
