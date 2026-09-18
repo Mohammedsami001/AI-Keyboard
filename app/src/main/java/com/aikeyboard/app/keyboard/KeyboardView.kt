@@ -1,9 +1,15 @@
 package com.aikeyboard.app.keyboard
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import android.view.KeyEvent
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -110,7 +116,7 @@ fun KeyboardView(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(4.dp)
         ) {
-            val rowHeight = 48.dp
+            val rowHeight = 56.dp
             
             Row(modifier = Modifier.fillMaxWidth().height(rowHeight), horizontalArrangement = Arrangement.SpaceEvenly) {
                 row1.forEach { key ->
@@ -146,7 +152,7 @@ fun KeyboardView(
                         inputConnectionProvider()?.commitText(if (isShifted && !isSymbolMode) key.uppercase() else key, 1)
                     }
                 }
-                KeyboardKey(text = "⌫", modifier = Modifier.weight(1.5f)) {
+                KeyboardKey(text = "⌫", modifier = Modifier.weight(1.5f), isRepeating = true) {
                     inputConnectionProvider()?.deleteSurroundingText(1, 0)
                 }
             }
@@ -177,14 +183,34 @@ fun KeyboardView(
 fun KeyboardKey(
     text: String,
     modifier: Modifier = Modifier,
+    isRepeating: Boolean = false,
     onClick: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = modifier
             .padding(2.dp)
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
-            .clickable { onClick() },
+            .pointerInput(Unit) {
+                if (isRepeating) {
+                    awaitEachGesture {
+                        awaitFirstDown()
+                        onClick() // initial click
+                        val job = coroutineScope.launch {
+                            delay(400) // delay before repeating starts
+                            while (true) {
+                                onClick()
+                                delay(50) // fast repeat interval
+                            }
+                        }
+                        waitForUpOrCancellation()
+                        job.cancel()
+                    }
+                } else {
+                    detectTapGestures(onTap = { onClick() })
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         Text(text = text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

@@ -50,6 +50,16 @@ fun EnableKeyboardScreen(
         }
     }
 
+    LaunchedEffect(isDefault) {
+        if (!isDefault) {
+            while (true) {
+                checkImeStatus()
+                kotlinx.coroutines.delay(500)
+                if (isDefault) break
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
